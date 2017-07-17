@@ -15,9 +15,9 @@ ENV LANGUAGE=C.UTF-8 \
     GEOKETTLE_PATH=/opt/geokettle \
     XGEO_GIT=https://github.com/oeg-upm/geo.linkeddata.es-TripleGeoKettle \
     ANT_URL=http://ftp.cixug.es/apache/ant/binaries/ \
-    ANT_PATH=apache-ant-1.10.1 \
+    ANT_VERSION=1.10.1 \
     ANT_HOME=/usr/local/ant \
-    PATH="${PATH}:/usr/local/ant/bin:/opt/geokettle"
+    PATH=$PATH:/opt/geokettle
 
 # Install Java 8
 RUN apt-get update && \
@@ -38,40 +38,58 @@ RUN apt-get update && \
     update-alternatives --query java | grep -q 'Status: manual' && \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
-# Download GeoKettle and Apache Ant
+# Install Apache Ant
+RUN cd /opt && \
+    curl $ANT_URL/apache-ant-$ANT_VERSION-bin.zip -o apache-ant.zip && \
+    unzip apache-ant.zip && \
+    rm -rf apache-ant.zip && \
+    mv apache-ant-$ANT_VERSION apache-ant && \
+    ln -s /opt/apache-ant/bin/ant /usr/local/bin/ant && \
+    chmod +x apache-ant/bin/ant
+
+# Install Geokettle
 RUN cd /opt && \
     svn checkout $GEOKETTLE_SVN $GEOKETTLE_PATH && \
-    curl $ANT_URL/$ANT_PATH-bin.zip -o $ANT_PATH.zip && \
-    unzip $ANT_PATH.zip && \
-    rm -rf $ANT_PATH.zip && \
-    mv $ANT_PATH /usr/local/ant
-
-# Compile Geokettle
-RUN cd $GEOKETTLE_PATH && \
+    cd $GEOKETTLE_PATH && \
     ant && \
     mv distrib /tmp/geokettle && \
     rm -rf $GEOKETTLE_PATH && \
-    mv /tmp/geokettle $GEOKETTLE_PATH
+    mv /tmp/geokettle $GEOKETTLE_PATH && \
+    cd $GEOKETTLE_PATH && \
+    chmod +x $GEOKETTLE_PATH/*.sh
 
 # Install TripleGeoKettle plugin
 RUN cd /opt && \
     git clone $XGEO_GIT triplegeo && \
     cd triplegeo/build && \
     ant && \
-    mv ../dist /opt/geokettle/plugins/steps/tripleGeoplugin
+    mv ../dist $GEOKETTLE_PATH/plugins/steps/tripleGeoplugin
 
 # Clean docker image
 RUN apt-get clean -y && \
-  apt-get autoclean -y && \
-  apt-get autoremove -y && \
-  rm -rf /opt/triplegeo && \
-  rm -rf /tmp/* && \
-  rm -rf /usr/share/locale/* && \
-  rm -rf /var/cache/debconf/*-old && \
-  rm -rf /var/lib/apt/lists/* && \
-  rm -rf /usr/share/doc/*
+    apt-get autoclean -y && \
+    apt-get autoremove -y && \
+    rm -rf /opt/triplegeo && \
+    rm -rf $GEOKETTLE_PATH/*.bat && \
+    rm -rf $GEOKETTLE_PATH/docs && \
+    rm -rf $GEOKETTLE_PATH/samples && \
+    rm -rf $GEOKETTLE_PATH/libswt/aix && \
+    rm -rf $GEOKETTLE_PATH/libswt/osx && \
+    rm -rf $GEOKETTLE_PATH/libswt/win* && \
+    rm -rf $GEOKETTLE_PATH/libswt/solaris && \
+    rm -rf /usr/share/locale/* && \
+    rm -rf /var/cache/debconf/*-old && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /usr/share/doc/* && \
+    rm -rf /tmp/*
+
+# Create user and permissions
+RUN useradd -ms /bin/bash geo && \
+    chown -R geo:geo /opt
+
+# Use non-root user
+USER geo
 
 # Default terminal
 WORKDIR $GEOKETTLE_PATH
 ENTRYPOINT ["/bin/bash"]
-

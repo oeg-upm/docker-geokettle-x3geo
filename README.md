@@ -3,7 +3,7 @@
 
 Reason 1: this docker image was created because there was a mismatch between compatible OS versions and libraries dependencies. Also, this image has all the software necessary to run all the features of the last version of GeoKettle and it will be updated when the dependencies, libraries or OS base would be safe to be updated.
 
-Reason 2: this docker image has compiled source code of GeoKettle last version with Java 8, so all the compiled and recent plugins are working well because there is compatibility. This is critical feature of this image, especially for Mac OS version.
+Reason 2: this docker image has been compiled with source code of GeoKettle last version and Java 8, so all the software and recent plugins are working well because there is compatibility between them. This is a critical feature, especially for Mac OS version.
 
 --
 
@@ -28,18 +28,13 @@ Build the Docker Image
 docker build -t oegupm/geokettle-x3geo .
 ```
 
-Run kitchen binary
+Test Docker Image with kitchen script
 
 ```bash
-docker run oegupm/geokettle-x3geo kitchen.sh
+docker run oegupm/geokettle-x3geo kitchen.sh -version
 ```
 
-Not availables commands:
-
-* spoon.sh: not supported because is a GUI
-* carte.sh: not supported because is for remote execution
-
-Availables commands:
+Available commands:
 
 * pan.sh: running transformations
 * kitchen.sh: running jobs
