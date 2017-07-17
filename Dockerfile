@@ -14,6 +14,7 @@ ENV LANGUAGE=C.UTF-8 \
     GEOKETTLE_SVN=http://dev.spatialytics.com/svn/geokettle-2.0/trunk \
     GEOKETTLE_PATH=/opt/geokettle \
     XGEO_GIT=https://github.com/oeg-upm/geo.linkeddata.es-TripleGeoKettle \
+    XGEO_PATH=/opt/triplegeo \
     ANT_URL=http://ftp.cixug.es/apache/ant/binaries/ \
     ANT_VERSION=1.10.1 \
     ANT_HOME=/usr/local/ant \
@@ -21,7 +22,7 @@ ENV LANGUAGE=C.UTF-8 \
 
 # Install Java 8
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends bzip2 unzip xz-utils && \
+    apt-get install -y --no-install-recommends bzip2 unzip xz-utils sudo && \
     echo 'deb http://deb.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/jessie-backports.list && \
     { \
         echo '#!/bin/sh'; \
@@ -60,16 +61,16 @@ RUN cd /opt && \
 
 # Install TripleGeoKettle plugin
 RUN cd /opt && \
-    git clone $XGEO_GIT triplegeo && \
-    cd triplegeo/build && \
+    git clone $XGEO_GIT $XGEO_PATH && \
+    cd $XGEO_PATH/build && \
     ant && \
-    mv ../dist $GEOKETTLE_PATH/plugins/steps/tripleGeoplugin
+    mv $XGEO_PATH/dist $GEOKETTLE_PATH/plugins/steps/tripleGeoplugin
 
 # Clean docker image
 RUN apt-get clean -y && \
     apt-get autoclean -y && \
     apt-get autoremove -y && \
-    rm -rf /opt/triplegeo && \
+    rm -rf $XGEO_PATH && \
     rm -rf $GEOKETTLE_PATH/*.bat && \
     rm -rf $GEOKETTLE_PATH/docs && \
     rm -rf $GEOKETTLE_PATH/samples && \
