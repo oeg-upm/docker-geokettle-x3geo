@@ -37,7 +37,15 @@ RUN apt-get update && \
     [ "$(readlink -f "$JAVA_HOME")" = "$(docker-java-home)" ] && \
     update-alternatives --get-selections | awk -v home="$(readlink -f "$JAVA_HOME")" 'index($3, home) == 1 { $2 = "manual"; print | "update-alternatives --set-selections" }' && \
     update-alternatives --query java | grep -q 'Status: manual' && \
-    /var/lib/dpkg/info/ca-certificates-java.postinst configure
+    /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
+    apt-get clean -y && \
+    apt-get autoclean -y && \
+    apt-get autoremove -y && \
+    rm -rf /usr/share/locale/* && \
+    rm -rf /var/cache/debconf/*-old && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /usr/share/doc/* && \
+    rm -rf /tmp/*
 
 # Install Apache Ant
 RUN cd /opt && \
@@ -57,32 +65,22 @@ RUN cd /opt && \
     rm -rf $GEOKETTLE_PATH && \
     mv /tmp/geokettle $GEOKETTLE_PATH && \
     cd $GEOKETTLE_PATH && \
-    chmod +x $GEOKETTLE_PATH/*.sh
-
-# Install TripleGeoKettle plugin
-RUN cd /opt && \
-    git clone $XGEO_GIT $XGEO_PATH && \
-    cd $XGEO_PATH/build && \
-    ant && \
-    mv $XGEO_PATH/dist $GEOKETTLE_PATH/plugins/steps/tripleGeoplugin
-
-# Clean docker image
-RUN apt-get clean -y && \
-    apt-get autoclean -y && \
-    apt-get autoremove -y && \
-    rm -rf $XGEO_PATH && \
+    chmod +x $GEOKETTLE_PATH/*.sh && \
     rm -rf $GEOKETTLE_PATH/*.bat && \
     rm -rf $GEOKETTLE_PATH/docs && \
     rm -rf $GEOKETTLE_PATH/samples && \
     rm -rf $GEOKETTLE_PATH/libswt/aix && \
     rm -rf $GEOKETTLE_PATH/libswt/osx && \
     rm -rf $GEOKETTLE_PATH/libswt/win* && \
-    rm -rf $GEOKETTLE_PATH/libswt/solaris && \
-    rm -rf /usr/share/locale/* && \
-    rm -rf /var/cache/debconf/*-old && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /usr/share/doc/* && \
-    rm -rf /tmp/*
+    rm -rf $GEOKETTLE_PATH/libswt/solaris
+
+# Install TripleGeoKettle plugin
+RUN cd /opt && \
+    git clone $XGEO_GIT $XGEO_PATH && \
+    cd $XGEO_PATH/build && \
+    ant && \
+    mv $XGEO_PATH/dist $GEOKETTLE_PATH/plugins/steps/tripleGeoplugin && \
+    rm -rf $XGEO_PATH
 
 # Create user and permissions
 RUN useradd -ms /bin/bash geo && \
