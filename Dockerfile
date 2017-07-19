@@ -21,7 +21,8 @@ ENV LANGUAGE=C.UTF-8 \
     PATH=$PATH:/opt/geokettle
 
 # Install Java 8
-RUN apt-get update && \
+RUN mkdir -p /opt/samples && \
+    apt-get update && \
     apt-get install -y --no-install-recommends bzip2 unzip xz-utils sudo && \
     echo 'deb http://deb.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/jessie-backports.list && \
     { \
@@ -81,6 +82,9 @@ RUN cd /opt && \
     ant && \
     mv $XGEO_PATH/dist $GEOKETTLE_PATH/plugins/steps/tripleGeoplugin && \
     rm -rf $XGEO_PATH
+
+# Copy samples files
+COPY ./samples /opt/samples
 
 # Create user and permissions
 RUN useradd -ms /bin/bash geo && \

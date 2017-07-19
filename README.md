@@ -34,6 +34,12 @@ Test Docker Image with kitchen script
 docker run oegupm/geokettle-x3geo kitchen.sh -version
 ```
 
+Test Docker Image with sample
+
+```bash
+docker run oegupm/geokettle-x3geo pan.sh -file="/opt/samples/sample_rio.ktr" -level=Detailed -norep
+```
+
 Available commands:
 
 * pan.sh: running transformations
