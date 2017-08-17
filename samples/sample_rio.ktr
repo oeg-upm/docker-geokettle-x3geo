@@ -147,7 +147,7 @@
     <fileNameInField>N</fileNameInField>
     <fileNameField/>
     <file>
-      <name>/opt/samples/sample_rio</name>
+      <name>${Internal.Transformation.Filename.Directory}&#47;sample_rio</name>
       <is_command>N</is_command>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
       <extention>ttl</extention>
@@ -234,7 +234,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>/opt/samples/sample_rio.shp</filename>
+    <filename>${Internal.Transformation.Filename.Directory}&#47;sample_rio.shp</filename>
     <isfilenameinfield>N</isfilenameinfield>
     <filenamefield/>
     <limit>0</limit>

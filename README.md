@@ -34,10 +34,14 @@ Test Docker Image with kitchen script
 docker run oegupm/geokettle-x3geo kitchen.sh -version
 ```
 
-Test Docker Image with sample
+Test Docker Image with samples
 
 ```bash
 docker run oegupm/geokettle-x3geo pan.sh -file="/opt/samples/sample_rio.ktr" -level=Detailed -norep
+```
+
+```
+docker run oegupm/geokettle-x3geo kitchen.sh -file="/opt/samples/sample_rows.kjb" -level=Detailed -norep
 ```
 
 Available commands:
